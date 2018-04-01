@@ -8,6 +8,9 @@ class MainPage extends StatefulWidget
 
 class _MainPageState extends State<MainPage>
 {
+  TextStyle romanNumBig = new TextStyle(color: Colors.black, fontWeight: FontWeight.w700, fontSize: 44.0);
+  TextStyle romanNumNormal = new TextStyle(color: Colors.black, fontWeight: FontWeight.w500, fontSize: 30.0);
+
   @override
   Widget build(BuildContext context)
   {
@@ -16,11 +19,71 @@ class _MainPageState extends State<MainPage>
       backgroundColor: Colors.white,
       body: new Column
       (
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.end,
         children: <Widget>
         [
-
+          new Flexible
+          (
+            child: new Container
+            (
+              margin: new EdgeInsets.only(top: 24.0),
+              padding: new EdgeInsets.all(32.0),
+              child: new Text('MCCXVIII', textAlign: TextAlign.end, style: romanNumBig),
+            ),
+          ),
+          new Flexible
+          (
+            flex: 3,
+            fit: FlexFit.loose,
+            child: new GridView.count
+            (
+              shrinkWrap: false,
+              crossAxisCount: 4,
+              padding: new EdgeInsets.all(0.0),
+              physics: new NeverScrollableScrollPhysics(),
+              children: <Widget>
+              [
+                calcButton('IV'),
+                calcButton('CM'),
+                calcButton('M'),
+                calcButton('/'),
+                calcButton('C'),
+                calcButton('CD'),
+                calcButton('D'),
+                calcButton('x'),
+                calcButton('XL'),
+                calcButton('L'),
+                calcButton('XC'),
+                calcButton('-'),
+                calcButton('V'),
+                calcButton('IX'),
+                calcButton('X'),
+                calcButton('+'),
+                calcButton('.'),
+                calcButton('A/C'),
+                calcButton('I'),
+                calcButton('='),
+              ],
+            ),
+          )
         ],
       )
+    );
+  }
+
+  Widget calcButton(String text)
+  {
+    return new InkWell
+    (
+      onTap: () => null,
+      child: new Center
+      (
+        child: new Container
+        (
+          child: new Text(text, style: romanNumNormal),
+        ),
+      ),
     );
   }
 
