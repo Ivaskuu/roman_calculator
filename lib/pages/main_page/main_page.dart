@@ -8,10 +8,15 @@ class MainPage extends StatefulWidget
 
 class _MainPageState extends State<MainPage>
 {
-  String history = '';
+  String operation = '';
+  List<String> numbers = [ '', '' ];
+  int actualNum = 0;
 
-  TextStyle romanNumBig = new TextStyle(color: Colors.black, fontWeight: FontWeight.w800, fontSize: 44.0);
-  TextStyle romanNumNormal = new TextStyle(color: Colors.black, fontWeight: FontWeight.w500, fontSize: 30.0);
+  String repeat = '';
+  bool showResult = false;
+
+  TextStyle romanNumBigTxt = new TextStyle(color: Colors.black, fontWeight: FontWeight.w700, fontSize: 50.0);
+  TextStyle romanNumNormalTxt = new TextStyle(color: Colors.black, fontWeight: FontWeight.w500, fontSize: 30.0);
 
   @override
   Widget build(BuildContext context)
@@ -21,64 +26,79 @@ class _MainPageState extends State<MainPage>
       backgroundColor: Colors.white,
       body: new Column
       (
-        mainAxisAlignment: MainAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.end,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: <Widget>
         [
-          new Flexible
+          new Expanded(child: new Container
           (
-            child: new Container
+            padding: new EdgeInsets.symmetric(vertical: MediaQuery.of(context).size.height / 10.0),
+            child: new ListView
             (
-              margin: new EdgeInsets.only(top: 24.0),
-              padding: new EdgeInsets.all(32.0),
-              child: new Text(history, textAlign: TextAlign.end, style: romanNumBig),
-            ),
+              reverse: true,
+              scrollDirection: Axis.horizontal,
+              padding: new EdgeInsets.symmetric(horizontal: 16.0),
+              children: <Widget>
+              [
+                new Text(operation == ''
+                 ? numbers[0] + operation + numbers[1]
+                 : numbers[0] + ' ' + operation + ' ' + numbers[1],
+                textAlign: TextAlign.end, style: romanNumBigTxt)
+              ],
+            ))
           ),
-          new Row
+          new Column
           (
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.end,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>
             [
-              new Flexible(flex: 2, child: calcButton('AC')),
-              new Flexible(flex: 1, child: calcButton('<')),
-              new Flexible(flex: 1, child: calcButton('=')),
-            ],
-          ),
-          new Row
-          (
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>
-            [
-              calcButton('/'),
-              calcButton('x'),
-              calcButton('-'),
-              calcButton('+'),
-            ],
-          ),
-          new Row
-          (
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>
-            [
-              calcButton('C'),
-              calcButton('D'),
-              calcButton('M'),
-              calcButton('V'),
-            ],
-          ),
-          new Row
-          (
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>
-            [
-              calcButton('X'),
-              calcButton('L'),
-              calcButton('I'),
-              calcButton('.'),
+              new Row
+              (
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>
+                [
+                  calcButton('DEL'),
+                  calcButton('REP'),
+                  calcButton('/'),
+                ],
+              ),    new Row
+              (
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>
+                [
+                  calcButton('C'),
+                  calcButton('D'),
+                  calcButton('M'),
+                  calcButton('x'),
+                ],
+              ),
+              new Row
+              (
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>
+                [
+                  calcButton('V'),
+                  calcButton('X'),
+                  calcButton('L'),
+                  calcButton('-'),
+                ],
+              ),
+              new Row
+              (
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>
+                [
+                  calcButton('I'),
+                  calcButton('.'),
+                  calcButton('='),
+                  calcButton('+'),
+                ],
+              )
             ],
           ),
         ],
@@ -92,22 +112,73 @@ class _MainPageState extends State<MainPage>
     (
       onTap: ()
       {
-        if(text == 'AC') setState(() => history = '');
-        else if(text == 'DEL') setState(() => history = history.substring(0, history.length-1));
-        else setState(() => history += text);
+        setState(()
+        {
+          if(checkIsRomanNumber(text)) numbers[actualNum] += text;
+          else
+          {
+            if(text == 'DEL')
+            {
+              if(numbers[actualNum].length > 0) numbers[actualNum] = numbers[actualNum].substring(0, numbers[actualNum].length-1);
+              else if(actualNum == 1 && operation != '')
+              {
+                operation = '';
+                actualNum = 0;
+              }
+            }
+            else if(text == 'REP') numbers[actualNum] += repeat;
+            else if(text == '=')
+            {
+              if(operation != '' && numbers[1] != '')
+              {
+                int number1 = romanToArabic(numbers[0]);
+                int number2 = romanToArabic(numbers[1]);
+
+                if(operation == '+') numbers[0] = arabicToRoman(number1 + number2);
+                else if(operation == '-') numbers[0] = arabicToRoman(number1 - number2);
+                else if(operation == 'x') numbers[0] = arabicToRoman(number1 * number2);
+                else if(operation == '/') numbers[0] = arabicToRoman((number1 / number2).round());
+                
+                numbers[1] = '';
+                operation = '';
+                actualNum = 0;
+
+                repeat = numbers[0];
+              }
+            }
+            else // It is an operation
+            {
+              if(numbers[0] != '')
+              {
+                if(operation == '') actualNum++;
+                operation = text; // Overwrite it
+              }
+            }
+          }
+        });
+      },
+      onLongPress: ()
+      {
+        setState(()
+        {
+          if(text == 'DEL') // Delete everything and animate a circle
+          {
+            numbers[0] = '';
+            numbers[1] = '';
+            operation = '';
+          }
+        });
       },
       child: new SizedBox.fromSize
       (
         size: new Size
         (
-          text == 'AC'
-           ? MediaQuery.of(context).size.width / 2
-           : MediaQuery.of(context).size.width / 4,
-         MediaQuery.of(context).size.height / 6
+          text == 'DEL' ? MediaQuery.of(context).size.width / 2 : MediaQuery.of(context).size.width / 4,
+          MediaQuery.of(context).size.height / 6
         ),
         child: new Center
         (
-          child: new Text(text, style: romanNumNormal),
+          child: new Text(text, style: romanNumNormalTxt),
         ),
       ),
     );
