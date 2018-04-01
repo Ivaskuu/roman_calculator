@@ -8,7 +8,9 @@ class MainPage extends StatefulWidget
 
 class _MainPageState extends State<MainPage>
 {
-  TextStyle romanNumBig = new TextStyle(color: Colors.black, fontWeight: FontWeight.w700, fontSize: 44.0);
+  String history = '';
+
+  TextStyle romanNumBig = new TextStyle(color: Colors.black, fontWeight: FontWeight.w800, fontSize: 44.0);
   TextStyle romanNumNormal = new TextStyle(color: Colors.black, fontWeight: FontWeight.w500, fontSize: 30.0);
 
   @override
@@ -19,7 +21,7 @@ class _MainPageState extends State<MainPage>
       backgroundColor: Colors.white,
       body: new Column
       (
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: <Widget>
         [
@@ -29,44 +31,56 @@ class _MainPageState extends State<MainPage>
             (
               margin: new EdgeInsets.only(top: 24.0),
               padding: new EdgeInsets.all(32.0),
-              child: new Text('MCCXVIII', textAlign: TextAlign.end, style: romanNumBig),
+              child: new Text(history, textAlign: TextAlign.end, style: romanNumBig),
             ),
           ),
-          new Flexible
+          new Row
           (
-            flex: 3,
-            fit: FlexFit.loose,
-            child: new GridView.count
-            (
-              shrinkWrap: false,
-              crossAxisCount: 4,
-              padding: new EdgeInsets.all(0.0),
-              physics: new NeverScrollableScrollPhysics(),
-              children: <Widget>
-              [
-                calcButton('IV'),
-                calcButton('CM'),
-                calcButton('M'),
-                calcButton('/'),
-                calcButton('C'),
-                calcButton('CD'),
-                calcButton('D'),
-                calcButton('x'),
-                calcButton('XL'),
-                calcButton('L'),
-                calcButton('XC'),
-                calcButton('-'),
-                calcButton('V'),
-                calcButton('IX'),
-                calcButton('X'),
-                calcButton('+'),
-                calcButton('.'),
-                calcButton('A/C'),
-                calcButton('I'),
-                calcButton('='),
-              ],
-            ),
-          )
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>
+            [
+              new Flexible(flex: 2, child: calcButton('AC')),
+              new Flexible(flex: 1, child: calcButton('<')),
+              new Flexible(flex: 1, child: calcButton('=')),
+            ],
+          ),
+          new Row
+          (
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>
+            [
+              calcButton('/'),
+              calcButton('x'),
+              calcButton('-'),
+              calcButton('+'),
+            ],
+          ),
+          new Row
+          (
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>
+            [
+              calcButton('C'),
+              calcButton('D'),
+              calcButton('M'),
+              calcButton('V'),
+            ],
+          ),
+          new Row
+          (
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>
+            [
+              calcButton('X'),
+              calcButton('L'),
+              calcButton('I'),
+              calcButton('.'),
+            ],
+          ),
         ],
       )
     );
@@ -76,10 +90,22 @@ class _MainPageState extends State<MainPage>
   {
     return new InkWell
     (
-      onTap: () => null,
-      child: new Center
+      onTap: ()
+      {
+        if(text == 'AC') setState(() => history = '');
+        else if(text == 'DEL') setState(() => history = history.substring(0, history.length-1));
+        else setState(() => history += text);
+      },
+      child: new SizedBox.fromSize
       (
-        child: new Container
+        size: new Size
+        (
+          text == 'AC'
+           ? MediaQuery.of(context).size.width / 2
+           : MediaQuery.of(context).size.width / 4,
+         MediaQuery.of(context).size.height / 6
+        ),
+        child: new Center
         (
           child: new Text(text, style: romanNumNormal),
         ),
